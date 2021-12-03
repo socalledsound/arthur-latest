@@ -1,18 +1,30 @@
 const canvasWidth = window.innerWidth
 const canvasHeight = window.innerHeight
 const imgSize = 600
+const gridImageSize = 200
 const numShirts = 5
-const numRows = 5
-const numCols = 5
+const numRows = 3
+const numCols = 4
 let shirt1front, shirt1back,shirt2front, shirt2back,shirt3front,shirt3back,shirt4front, shirt4back, shirt5front, shirt5back, shirt6front, shirt6back, shirt7front, shirt7back, shirt8front, shirt8back, shirt9front, shirt9back, shirt10back, shirt11front, shirt12front, shirt13front, shirt13back, shirt14front, shirt14back
 let thetaX = 0
 let thetaY = 0
 let mouseStart = {x: 0, y: 0}
 
 let shirts = []
-const controlCircleSize = 25
+
+const controlCircleSize = 50
 let circlePositions
+
+let toggleButtons
+const toggleButtonWidth = 100
+const toggleButtonHeight = 50
+const numToggles = 2
+// const toggleButtonNames = ['single', 'grid']
+
+
 let counter = 0
+let overallState = 1
+const numStates = 2
 
 
 function preload(){
@@ -156,84 +168,55 @@ function setup() {
 
   controlCircleData = Array.from({length: shirts.length}, (el, i) => {
     const x = canvasWidth/2 - controlCircleSize * 2
-    const y = -canvasHeight/2 + controlCircleSize * 1.01 + (i + 1) * (controlCircleSize * 2)
+    const y = -canvasHeight/2 + controlCircleSize * 1.01 + (i + 1) * (controlCircleSize * 1.1)
     const col = [random(0, 255), random(0, 255), random(0, 255),]
     return {
         x,y, col
     }
 })
 
+toggleButtons = Array.from({ length: numToggles}, (el, i  ) => {
+  const x = - ((numToggles - 1) * toggleButtonWidth) + (i * toggleButtonWidth * 1.5)
+  const y = -canvasHeight/2 + 50
+  const col = [random(255), random(255), random(255)]
+  const hoverCol = [random(255), random(255), random(255)]
+  return {
+    x,
+    y,
+    col,
+    hoverCol,
+    width: toggleButtonWidth,
+    height: toggleButtonHeight
+  } 
+})
 
 }
 
 function draw(){
   background(120)
   rectMode(CENTER);
-
-  drawControlCircles()
-
-  // rotateX(PI)
+  drawToggleButtons()
  
-  // for(let i = 0; i< numCols; i++){
-  //   for(let j = 0; j < numRows; j++){
-  //     drawBackgroundBox(imgSize, (i * imgSize) - canvasWidth/4, -100)
 
-  //     drawShirt(shirt1front, imgSize, (i * imgSize) - canvasWidth/3, (j * imgSize) - canvasHeight/3, 2)
-  //     drawShirt(shirt1back, imgSize,(i * imgSize) - canvasWidth/3,  (j * imgSize) - canvasHeight/3 , -2)
-  //     //shirtCount++
-  //   }
-
-  // }
-
-    // drawBackgroundRectangle(imgSize, (imgSize) - canvasWidth/4, -100)
-
-    drawShirtSide(shirts[counter].front, imgSize, 0, 0, 1)
-    drawShirtSide(shirts[counter].back, imgSize, 0, 0 , -1)
-
-
-
-  // // replace the images below with new images
-  // drawBackgroundBox(imgSize, 250, -100)
-  // drawShirt(shirt1front, imgSize, 250, -100, 1)
-  // drawShirt(shirt1back, imgSize, 250, -100, -1)
-
-  // theta+=0.01
+  renderCurrentState(overallState)
 }
 
 function mousePressed(){
   mouseStart = {x: mouseX, y: mouseY}
   checkCircles(mouseX - canvasWidth/2, mouseY - canvasHeight/2)
+  const clicked = (checkToggles(mouseX - canvasWidth/2, mouseY - canvasHeight/2))
+  
+  if(clicked){
+    overallState = clicked
+    }
+  
+
 }
 
 function mouseDragged(){
     thetaY = map(Math.abs(mouseX - mouseStart.x), 0,  200, 0, TWO_PI)
     thetaX = map(Math.abs(mouseY - mouseStart.y), 0,  200, 0, TWO_PI)
     // console.log(theta)
-}
-
-function drawBackgroundBox(size, xOff, yOff){
-  push()
-    translate(xOff - imgSize/4, yOff,0)
-    rotateX(-thetaX)
-    rotateY(-thetaY)
-    fill(130)
-    box(size,size,1)
-  pop()
-}
-
-
-function drawShirtSide(img, size, xOff, yOff, side){
-  push()
-    noStroke()
-    translate(xOff, yOff, side)
-    translate(xOff,yOff, -side)
-    rotateY(thetaY)
-    rotateX(thetaX)
-    translate(xOff, yOff, side)
-    
-    texture(img)
-    rect(0,0, size, size)
-  pop()
 }
 
 
@@ -251,6 +234,15 @@ const drawControlCircles = () => {
       })
   
 }
+
+const drawToggleButtons = () => {
+  toggleButtons.forEach(button => {
+    fill(button.col)
+    rect(button.x, button.y, button.width, button.height, 120)
+  })
+  
+}
+
 
 
 // const checkHover = () => {
@@ -276,3 +268,110 @@ const checkCircles = (mX, mY) => {
           }
   })
 }
+
+const checkToggles = (mX, mY) => {
+  console.log(mX, mY)
+  const toggleChecks = toggleButtons.map((toggle, idx) => {
+      if(mX > toggle.x  - toggleButtonWidth/2&&
+          mX < toggle.x + toggleButtonWidth/2 &&
+          mY > toggle.y - + toggleButtonHeight/2 &&
+          mY < toggle.y + toggleButtonHeight/2){
+              return idx + 1
+          }else{
+            return false
+          }
+  })
+  const found = toggleChecks.filter((el, i) => el > 0)
+  if(found){
+    return found[0] 
+  }
+}
+
+
+function drawBackgroundBox(size, xOff, yOff){
+  push()
+    translate(xOff - imgSize/4, yOff,0)
+    rotateX(-thetaX)
+    rotateY(-thetaY)
+    fill(130)
+    box(size,size,1)
+  pop()
+}
+
+
+function drawShirtSide(img, size, xOff, yOff, side){
+  push()
+    noStroke()
+    translate(xOff, yOff, side)
+    translate(xOff,yOff, -side)
+    rotateY(thetaY)
+    rotateX(thetaX)
+    translate(xOff, yOff, side)
+    // console.log(img)
+    texture(img)
+    rect(0,0, size, size)
+  pop()
+}
+
+
+
+
+function drawGridShirtSide(img, size, xOff, yOff, side){
+  push()
+    noStroke()
+    translate(-size/2 + xOff, -size/2 + yOff, side)
+    // translate(size/2,size/2, -side)
+    rotateY(thetaY)
+    rotateX(thetaX)
+    // translate(-size/2, -size/2, side)
+    
+    texture(img)
+    rect(0,0, size, size)
+  pop()
+}
+
+
+
+const renderCurrentState = (overallState) => {
+  // console.log(overallState)
+  switch(overallState){
+    case 1:
+      drawGrid()
+      return
+    case 2: 
+      drawCloseUp()
+      drawControlCircles()
+      return
+    default : 
+      return
+  }
+}
+
+const drawGrid = () => {
+
+    // rotateX(PI)
+  let count = 0
+  for(let i = 0; i< numCols; i++){
+    for(let j = 0; j < numRows; j++){
+      // drawBackgroundBox(imgSize, (i * imgSize) - canvasWidth/4, -100)
+
+      drawGridShirtSide(shirts[count].front, gridImageSize, 
+                      (i * gridImageSize) - canvasWidth/6, 
+                      (j * gridImageSize) - canvasHeight/6 + 100, 2)
+      drawGridShirtSide(shirts[count].back, gridImageSize,
+                      (i * gridImageSize) - canvasWidth/6,  
+                      (j * gridImageSize) - canvasHeight/6 + 100, -2)
+      //shirtCount++
+      count++
+    }
+
+  }
+}
+
+
+const drawCloseUp = () => {
+
+  drawShirtSide(shirts[counter].front, imgSize, 0, 0, 10)
+  drawShirtSide(shirts[counter].back, imgSize, 0, 0 , -10)
+}
+
