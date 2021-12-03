@@ -176,7 +176,7 @@ function setup() {
 })
 
 toggleButtons = Array.from({ length: numToggles}, (el, i  ) => {
-  const x = - ((numToggles - 1) * toggleButtonWidth) + (i * toggleButtonWidth * 1.5)
+  const x = - ((numToggles - 1) * toggleButtonWidth) + (i * toggleButtonWidth * 1.5) - toggleButtonWidth/2
   const y = -canvasHeight/2 + 50
   const col = [random(255), random(255), random(255)]
   const hoverCol = [random(255), random(255), random(255)]
@@ -193,7 +193,7 @@ toggleButtons = Array.from({ length: numToggles}, (el, i  ) => {
 }
 
 function draw(){
-  background(120)
+  background(120, 120, 120, 100)
   rectMode(CENTER);
   drawToggleButtons()
  
