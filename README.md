@@ -1,3 +1,3 @@
 # arthur shirts
 
-https://socalledsound.github.io/arthur-shirts/
+ttps://socalledsound.github.io/arthur-latest/
